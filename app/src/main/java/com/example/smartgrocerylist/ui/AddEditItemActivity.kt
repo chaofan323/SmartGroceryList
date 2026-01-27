@@ -17,6 +17,7 @@ class AddEditItemActivity : AppCompatActivity() {
         const val EXTRA_ITEM_ID = "extra_item_id"
         const val MODE_ADD = "mode_add"
         const val MODE_EDIT = "mode_edit"
+        const val RESULT_CHANGED_ITEM_ID = "result_changed_item_id"
     }
 
     private lateinit var etItemName: EditText
@@ -66,11 +67,37 @@ class AddEditItemActivity : AppCompatActivity() {
 
     private fun setupSave() {
         btnSave.setOnClickListener {
-            if (validateInputs()) {
-                Toast.makeText(this, "Input looks good.", Toast.LENGTH_SHORT).show()
+            if (!validateInputs()) return@setOnClickListener
+
+            if (mode == MODE_EDIT) {
+                // Update existing item
+                GroceryRepository.updateItem(
+                    editingItemId,
+                    validatedName,
+                    validatedPrice,
+                    validatedCategory
+                )
+
+                // Return RESULT_OK + changed id
+                val resultIntent = intent.apply {
+                    putExtra(RESULT_CHANGED_ITEM_ID, editingItemId)
+                }
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            } else {
+                // Add new item
+                GroceryRepository.addItem(
+                    validatedName,
+                    validatedPrice,
+                    validatedCategory
+                )
+
+                setResult(RESULT_OK)
+                finish()
             }
         }
     }
+
 
     private fun initFromIntent() {
         mode = intent.getStringExtra(EXTRA_MODE) ?: MODE_ADD
