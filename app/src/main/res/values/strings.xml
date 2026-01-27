@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">SmartGroceryList</string>
+
+    <string name="add_edit_title">Add / Edit Item</string>
+    <string name="label_item_name">Item name</string>
+    <string name="hint_item_name">e.g., Milk</string>
+    <string name="label_price">Estimated price</string>
+    <string name="hint_price">e.g., 3.99</string>
+    <string name="label_category">Category</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string-array name="category_options">
+        <item>Produce</item>
+        <item>Dairy</item>
+        <item>Meat</item>
+        <item>Snacks</item>
+        <item>Other</item>
+    </string-array>
+
 </resources>
