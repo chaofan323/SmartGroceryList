@@ -66,6 +66,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/hint_price"
         android:inputType="numberDecimal"
+        android:imeOptions="actionDone"
         android:minHeight="48dp"
         android:padding="12dp"
         android:background="@android:drawable/edit_text"

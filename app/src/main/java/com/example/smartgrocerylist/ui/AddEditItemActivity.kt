@@ -43,6 +43,10 @@ class AddEditItemActivity : AppCompatActivity() {
         setupSave()
 
         initFromIntent()
+
+        etPrice.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) etPrice.selectAll()
+        }
     }
 
     private fun bindViews() {
@@ -83,6 +87,7 @@ class AddEditItemActivity : AppCompatActivity() {
                     putExtra(RESULT_CHANGED_ITEM_ID, editingItemId)
                 }
                 setResult(RESULT_OK, resultIntent)
+                Toast.makeText(this, "Item updated", Toast.LENGTH_SHORT).show()
                 finish()
             } else {
                 // Add new item
@@ -93,6 +98,7 @@ class AddEditItemActivity : AppCompatActivity() {
                 )
 
                 setResult(RESULT_OK)
+                Toast.makeText(this, "Item saved", Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
@@ -123,7 +129,8 @@ class AddEditItemActivity : AppCompatActivity() {
 
     private fun prefillFields(name: String, price: Double, category: String) {
         etItemName.setText(name)
-        etPrice.setText(price.toString())
+        etPrice.setText(String.format("%.2f", price))
+//        etPrice.setText(price.toString())
 
         val categories = resources.getStringArray(R.array.category_options)
         val index = categories.indexOf(category)
