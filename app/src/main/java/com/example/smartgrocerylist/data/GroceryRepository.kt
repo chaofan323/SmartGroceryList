@@ -5,8 +5,11 @@ object GroceryRepository {
     private val items = mutableListOf<GroceryItem>()
     private var nextId = 1
 
-    fun getAllItems(): List<GroceryItem> {
-        return items
+//    fun getAllItems(): List<GroceryItem> {
+//        return items
+//    }
+    fun getAllItems(): List<com.example.smartgrocerylist.data.GroceryItem> {
+        return items.toList()
     }
 
     fun getItemById(id: Int): GroceryItem? {
@@ -47,5 +50,9 @@ object GroceryRepository {
         return items
             .filter { it.isPurchased }
             .sumOf { it.price }
+    }
+
+    fun deleteItem(id: Int) {
+        items.removeAll { it.id == id }
     }
 }

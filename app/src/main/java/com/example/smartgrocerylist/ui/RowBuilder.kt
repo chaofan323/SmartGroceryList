@@ -1,5 +1,7 @@
 package com.example.smartgrocerylist.ui
 
+import com.example.smartgrocerylist.data.GroceryItem
+
 fun buildRows(items: List<GroceryItem>): List<ListRow> {
     if (items.isEmpty()) return emptyList()
 
