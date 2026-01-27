@@ -1,4 +1,5 @@
 <resources>
+    <!-- App / Main List -->
     <string name="app_name">Smart Grocery List</string>
     <string name="empty_icon_desc">Empty list icon</string>
     <string name="empty_title">Your list is empty.</string>
@@ -7,5 +8,22 @@
     <string name="mark_purchased">Mark item as purchased</string>
     <string name="delete_item">Delete item</string>
 
+    <!-- Add / Edit Item screen -->
+    <string name="add_edit_title">Add / Edit Item</string>
+    <string name="label_item_name">Item name</string>
+    <string name="hint_item_name">e.g., Milk</string>
+    <string name="label_price">Estimated price</string>
+    <string name="hint_price">e.g., 3.99</string>
+    <string name="label_category">Category</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string-array name="category_options">
+        <item>Select a category</item>
+        <item>Produce</item>
+        <item>Dairy</item>
+        <item>Meat</item>
+        <item>Snacks</item>
+        <item>Other</item>
+    </string-array>
 
 </resources>
