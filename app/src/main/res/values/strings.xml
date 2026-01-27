@@ -1,6 +1,14 @@
 <resources>
-    <string name="app_name">SmartGroceryList</string>
+    <!-- App / Main List -->
+    <string name="app_name">Smart Grocery List</string>
+    <string name="empty_icon_desc">Empty list icon</string>
+    <string name="empty_title">Your list is empty.</string>
+    <string name="empty_subtitle">Tap + to add an item</string>
+    <string name="add_grocery_item">Add grocery item</string>
+    <string name="mark_purchased">Mark item as purchased</string>
+    <string name="delete_item">Delete item</string>
 
+    <!-- Add / Edit Item screen -->
     <string name="add_edit_title">Add / Edit Item</string>
     <string name="label_item_name">Item name</string>
     <string name="hint_item_name">e.g., Milk</string>
