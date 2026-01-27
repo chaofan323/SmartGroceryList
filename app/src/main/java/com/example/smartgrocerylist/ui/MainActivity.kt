@@ -1,21 +1,108 @@
 package com.example.smartgrocerylist.ui
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.smartgrocerylist.R
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var recycler: RecyclerView
+    private lateinit var emptyStateContainer: View
+    private lateinit var fabAdd: FloatingActionButton
+
+    private lateinit var groceryAdapter: GroceryAdapter
+
+    // In-memory data (for now). Later you can save/load via SharedPreferences or Room.
+    private val items = mutableListOf(
+        GroceryItem(1, "Apples", 4.50, "Produce", false),
+        GroceryItem(2, "Bananas", 2.99, "Produce", false),
+        GroceryItem(3, "Milk", 1.99, "Dairy", true),
+        GroceryItem(4, "Chicken Breast", 9.99, "Meat", false),
+        GroceryItem(5, "Chips", 2.49, "Snacks", false)
+    )
+    // To test empty state, use:
+    // private val items = mutableListOf<GroceryItem>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        // Views
+        toolbar = findViewById(R.id.toolbar)
+        recycler = findViewById(R.id.recycler)
+        emptyStateContainer = findViewById(R.id.emptyStateContainer)
+        fabAdd = findViewById(R.id.fabAdd)
+
+        // Toolbar setup
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true) // matches wireframe
+
+        // RecyclerView setup
+        recycler.layoutManager = LinearLayoutManager(this)
+
+        groceryAdapter = GroceryAdapter(
+            rows = buildRows(items).toMutableList(),
+            onItemClick = { item ->
+                Toast.makeText(this, "Edit: ${item.name}", Toast.LENGTH_SHORT).show()
+            },
+            onPurchasedToggle = { item, isPurchased ->
+                item.purchased = isPurchased
+            },
+            onDeleteClick = { item ->
+                items.removeAll { it.id == item.id }  // remove from list
+                refreshUI()
+                Toast.makeText(this, "Deleted: ${item.name}", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+
+        recycler.adapter = groceryAdapter
+
+        // Initial UI state
+        refreshUI()
+
+        // FAB click
+        fabAdd.setOnClickListener {
+            // Later: startActivity(Intent(this, AddItemActivity::class.java))
+            Toast.makeText(this, "Add item (coming next)", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun refreshUI() {
+        val hasItems = items.isNotEmpty()
+        updateEmptyState(hasItems)
+
+        if (hasItems) {
+            groceryAdapter.update(buildRows(items))
+        }
+    }
+
+    private fun updateEmptyState(hasItems: Boolean) {
+        if (hasItems) {
+            emptyStateContainer.visibility = View.GONE
+            recycler.visibility = View.VISIBLE
+        } else {
+            emptyStateContainer.visibility = View.VISIBLE
+            recycler.visibility = View.GONE
+        }
+    }
+
+    // Handles toolbar back arrow
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }
