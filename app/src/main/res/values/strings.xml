@@ -10,6 +10,7 @@
     <string name="btn_save">Save</string>
     <string name="btn_cancel">Cancel</string>
     <string-array name="category_options">
+        <item>Select a category</item>
         <item>Produce</item>
         <item>Dairy</item>
         <item>Meat</item>

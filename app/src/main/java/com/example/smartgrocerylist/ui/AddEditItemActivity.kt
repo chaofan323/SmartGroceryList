@@ -23,9 +23,14 @@ class AddEditItemActivity : AppCompatActivity() {
     private lateinit var etPrice: EditText
     private lateinit var spCategory: Spinner
     private lateinit var btnCancel: Button
+    private lateinit var btnSave: Button
 
     private var mode: String = MODE_ADD
     private var editingItemId: Int = -1
+
+    private var validatedName: String = ""
+    private var validatedPrice: Double = 0.0
+    private var validatedCategory: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +39,7 @@ class AddEditItemActivity : AppCompatActivity() {
         bindViews()
         setupCategorySpinner()
         setupCancel()
+        setupSave()
 
         initFromIntent()
     }
@@ -43,6 +49,7 @@ class AddEditItemActivity : AppCompatActivity() {
         etPrice = findViewById(R.id.etPrice)
         spCategory = findViewById(R.id.spCategory)
         btnCancel = findViewById(R.id.btnCancel)
+        btnSave = findViewById(R.id.btnSave)
     }
 
     private fun setupCategorySpinner() {
@@ -50,10 +57,19 @@ class AddEditItemActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spCategory.adapter = adapter
+        spCategory.setSelection(0) // default to "Select a category"
     }
 
     private fun setupCancel() {
         btnCancel.setOnClickListener { finish() }
+    }
+
+    private fun setupSave() {
+        btnSave.setOnClickListener {
+            if (validateInputs()) {
+                Toast.makeText(this, "Input looks good.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun initFromIntent() {
@@ -85,5 +101,39 @@ class AddEditItemActivity : AppCompatActivity() {
         val categories = resources.getStringArray(R.array.category_options)
         val index = categories.indexOf(category)
         spCategory.setSelection(if (index >= 0) index else 0)
+    }
+
+    private fun validateInputs(): Boolean {
+        // Clear previous errors
+        etItemName.error = null
+        etPrice.error = null
+
+        val name = etItemName.text.toString().trim()
+        if (name.isEmpty()) {
+            etItemName.error = "Name cannot be empty"
+            etItemName.requestFocus()
+            return false
+        }
+
+        val priceText = etPrice.text.toString().trim()
+        val price = priceText.toDoubleOrNull()
+        if (price == null || price <= 0.0) {
+            etPrice.error = "Price must be a positive number"
+            etPrice.requestFocus()
+            return false
+        }
+
+        val pos = spCategory.selectedItemPosition
+        if (pos == 0) {
+            Toast.makeText(this, "Please select a category.", Toast.LENGTH_SHORT).show()
+            spCategory.requestFocus()
+            return false
+        }
+
+        validatedName = name
+        validatedPrice = price
+        validatedCategory = spCategory.selectedItem.toString()
+
+        return true
     }
 }
