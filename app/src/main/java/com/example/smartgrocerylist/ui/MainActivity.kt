@@ -70,8 +70,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 addEditLauncher.launch(intent) },
 
-            onPurchasedToggle = { item, _ ->
-                GroceryRepository.togglePurchased(item.id)
+            onPurchasedToggle = { item, isPurchased ->
+                GroceryRepository.setPurchased(item.id, isPurchased)
                 refreshUI()
             },
 

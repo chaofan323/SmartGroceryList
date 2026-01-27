@@ -5,10 +5,7 @@ object GroceryRepository {
     private val items = mutableListOf<GroceryItem>()
     private var nextId = 1
 
-//    fun getAllItems(): List<GroceryItem> {
-//        return items
-//    }
-    fun getAllItems(): List<com.example.smartgrocerylist.data.GroceryItem> {
+    fun getAllItems(): List<GroceryItem> {
         return items.toList()
     }
 
@@ -38,8 +35,13 @@ object GroceryRepository {
     fun togglePurchased(id: Int) {
         val item = getItemById(id)
         item?.let {
-            it.isPurchased = !it.isPurchased
+            it.purchased = !it.purchased
         }
+    }
+
+    fun setPurchased(id: Int, purchased: Boolean) {
+        val item = getItemById(id)
+        item?.purchased = purchased
     }
 
     fun getTotalEstimatedCost(): Double {
@@ -48,7 +50,7 @@ object GroceryRepository {
 
     fun getTotalSpent(): Double {
         return items
-            .filter { it.isPurchased }
+            .filter { it.purchased }
             .sumOf { it.price }
     }
 
