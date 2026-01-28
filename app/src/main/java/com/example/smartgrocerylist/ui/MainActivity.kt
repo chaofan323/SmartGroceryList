@@ -10,6 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smartgrocerylist.R
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
+import com.example.smartgrocerylist.data.GroceryItem
+import com.example.smartgrocerylist.data.GroceryRepository
+import android.view.Menu
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,15 +26,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var groceryAdapter: GroceryAdapter
 
     // In-memory data (for now). Later you can save/load via SharedPreferences or Room.
-    private val items = mutableListOf(
-        GroceryItem(1, "Apples", 4.50, "Produce", false),
-        GroceryItem(2, "Bananas", 2.99, "Produce", false),
-        GroceryItem(3, "Milk", 1.99, "Dairy", true),
-        GroceryItem(4, "Chicken Breast", 9.99, "Meat", false),
-        GroceryItem(5, "Chips", 2.49, "Snacks", false)
-    )
-    // To test empty state, use:
-    // private val items = mutableListOf<GroceryItem>()
+//    private val items = mutableListOf(
+//        GroceryItem(1, "Apples", 4.50, "Produce", false),
+//        GroceryItem(2, "Bananas", 2.99, "Produce", false),
+//        GroceryItem(3, "Milk", 1.99, "Dairy", true),
+//        GroceryItem(4, "Chicken Breast", 9.99, "Meat", false),
+//        GroceryItem(5, "Chips", 2.49, "Snacks", false)
+//    )
+
+    private val items = mutableListOf<GroceryItem>()
+
+    private val addEditLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                // Always refresh after add/edit returns OK
+                refreshUI()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,13 +64,20 @@ class MainActivity : AppCompatActivity() {
         groceryAdapter = GroceryAdapter(
             rows = buildRows(items).toMutableList(),
             onItemClick = { item ->
-                Toast.makeText(this, "Edit: ${item.name}", Toast.LENGTH_SHORT).show()
-            },
+//                Toast.makeText(this, "Edit: ${item.name}", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, AddEditItemActivity::class.java).apply {
+                    putExtra(AddEditItemActivity.EXTRA_MODE, AddEditItemActivity.MODE_EDIT)
+                    putExtra(AddEditItemActivity.EXTRA_ITEM_ID, item.id)
+                }
+                addEditLauncher.launch(intent) },
+
             onPurchasedToggle = { item, isPurchased ->
-                item.purchased = isPurchased
+                GroceryRepository.setPurchased(item.id, isPurchased)
+                refreshUI()
             },
+
             onDeleteClick = { item ->
-                items.removeAll { it.id == item.id }  // remove from list
+                GroceryRepository.deleteItem(item.id)
                 refreshUI()
                 Toast.makeText(this, "Deleted: ${item.name}", Toast.LENGTH_SHORT).show()
             }
@@ -72,18 +92,48 @@ class MainActivity : AppCompatActivity() {
         // FAB click
         fabAdd.setOnClickListener {
             // Later: startActivity(Intent(this, AddItemActivity::class.java))
-            Toast.makeText(this, "Add item (coming next)", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "Add item (coming next)", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AddEditItemActivity::class.java).apply {
+                putExtra(AddEditItemActivity.EXTRA_MODE, AddEditItemActivity.MODE_ADD)
+            }
+            addEditLauncher.launch(intent)
         }
+
+//        toolbar.setOnMenuItemClickListener { menuItem ->
+//            when (menuItem.itemId) {
+//                R.id.action_summary -> {
+//                    startActivity(Intent(this, SummaryActivity::class.java))
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
     }
 
     private fun refreshUI() {
+        if (GroceryRepository.getAllItems().isEmpty()) {
+            GroceryRepository.addItem("Apples", 4.50, "Produce")
+            GroceryRepository.addItem("Bananas", 2.99, "Produce")
+            GroceryRepository.addItem("Milk", 1.99, "Dairy")
+            GroceryRepository.addItem("Chicken Breast", 9.99, "Meat")
+            GroceryRepository.addItem("Chips", 2.49, "Snacks")
+            // Optional: mark one purchased
+            // GroceryRepository.togglePurchased(3)
+        }
+        // Pull latest data from repository
+        items.clear()
+        items.addAll(GroceryRepository.getAllItems())
+
         val hasItems = items.isNotEmpty()
         updateEmptyState(hasItems)
 
         if (hasItems) {
             groceryAdapter.update(buildRows(items))
+        } else {
+            groceryAdapter.update(emptyList())
         }
     }
+
 
     private fun updateEmptyState(hasItems: Boolean) {
         if (hasItems) {
@@ -102,7 +152,16 @@ class MainActivity : AppCompatActivity() {
                 finish()
                 true
             }
+            R.id.action_summary -> {
+                startActivity(Intent(this, SummaryActivity::class.java))
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
     }
 }

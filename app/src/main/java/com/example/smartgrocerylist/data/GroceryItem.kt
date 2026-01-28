@@ -5,5 +5,5 @@ data class GroceryItem(
     var name: String,
     var price: Double,
     var category: String,
-    var isPurchased: Boolean = false
+    var purchased: Boolean = false
 )
