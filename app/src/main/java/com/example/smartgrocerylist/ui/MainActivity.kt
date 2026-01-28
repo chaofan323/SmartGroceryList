@@ -14,6 +14,7 @@ import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.smartgrocerylist.data.GroceryItem
 import com.example.smartgrocerylist.data.GroceryRepository
+import android.view.Menu
 
 class MainActivity : AppCompatActivity() {
 
@@ -97,6 +98,16 @@ class MainActivity : AppCompatActivity() {
             }
             addEditLauncher.launch(intent)
         }
+
+//        toolbar.setOnMenuItemClickListener { menuItem ->
+//            when (menuItem.itemId) {
+//                R.id.action_summary -> {
+//                    startActivity(Intent(this, SummaryActivity::class.java))
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
     }
 
     private fun refreshUI() {
@@ -141,7 +152,16 @@ class MainActivity : AppCompatActivity() {
                 finish()
                 true
             }
+            R.id.action_summary -> {
+                startActivity(Intent(this, SummaryActivity::class.java))
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
     }
 }

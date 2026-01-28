@@ -26,6 +26,7 @@
         <item>Other</item>
     </string-array>
 
+    <string name="menu_summary">Summary</string>
     <string name="summary_title">Budget &amp; Spending Summary</string>
     <string name="summary_estimated_label">Total estimated ($)</string>
     <string name="summary_spent_label">Total spent ($)</string>
