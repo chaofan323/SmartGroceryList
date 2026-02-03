@@ -20,7 +20,6 @@ import android.widget.TextView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
-import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -186,13 +185,13 @@ class MainActivity : AppCompatActivity() {
 
         val percent = if (budget <= 0.0) 0 else ((spent / budget) * 100).toInt().coerceAtLeast(0)
 
-        tvBudgetTitle.text = String.format(Locale.US, "Budget: $%.2f", budget)
-        tvSpentLine.text = String.format(Locale.US, "$%.2f spent out of $%.2f", spent, budget)
+        tvBudgetTitle.text = getString(R.string.budget_title, budget)
+        tvSpentLine.text = getString(R.string.budget_spent_line, spent, budget)
 
         progressBudget.max = 100
         progressBudget.progress = percent.coerceIn(0, 100)
 
-        tvPercent.text = "${percent}% Spent"
+        tvPercent.text = getString(R.string.budget_percent, percent)
 
         tvBudgetEmoji.text = when {
             budget <= 0.0 -> "📝"
@@ -202,6 +201,6 @@ class MainActivity : AppCompatActivity() {
             else -> "😡"
         }
 
-        btnSetBudget.text = if (budget <= 0.0) "Set Budget" else "Edit Budget"
+        btnSetBudget.text = getString(if (budget <= 0.0) R.string.set_budget else R.string.edit_budget)
     }
 }
