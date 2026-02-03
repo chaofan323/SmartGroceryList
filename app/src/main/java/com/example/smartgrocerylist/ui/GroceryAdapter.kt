@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smartgrocerylist.R
+import com.example.smartgrocerylist.data.GroceryItem
 
 class GroceryAdapter(
     private val rows: MutableList<ListRow>,

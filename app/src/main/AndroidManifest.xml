@@ -23,9 +23,7 @@
         <activity
             android:name=".ui.AddEditItemActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.SummaryActivity"
-            android:exported="false" />
+        <activity android:name=".ui.SummaryActivity" />
     </application>
 
 </manifest>
