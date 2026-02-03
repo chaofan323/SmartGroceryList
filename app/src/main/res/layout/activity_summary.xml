@@ -54,7 +54,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:weightSum="3">
+                        android:weightSum="3"
+                        android:baselineAligned="false">
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -74,7 +75,7 @@
                                 android:id="@+id/tvEstimatedValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="$0.00"
+                                android:text="@string/currency_zero"
                                 android:textStyle="bold"
                                 android:textSize="18sp"
                                 android:layout_marginTop="6dp"/>
@@ -98,7 +99,7 @@
                                 android:id="@+id/tvSpentValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="$0.00"
+                                android:text="@string/currency_zero"
                                 android:textStyle="bold"
                                 android:textSize="18sp"
                                 android:layout_marginTop="6dp"/>
@@ -122,7 +123,7 @@
                                 android:id="@+id/tvRemainingValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="$0.00"
+                                android:text="@string/currency_zero"
                                 android:textStyle="bold"
                                 android:textSize="18sp"
                                 android:layout_marginTop="6dp"/>
@@ -152,7 +153,7 @@
                         android:id="@+id/tvProgressValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0%"
+                        android:text="@string/percent_zero"
                         android:layout_marginTop="10dp"
                         android:textStyle="bold"/>
 

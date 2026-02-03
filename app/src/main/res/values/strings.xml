@@ -41,6 +41,20 @@
     <string name="budget_set">Set Budget</string>
     <string name="summary_spent_by_category">Spent by category</string>
 
+    <string name="currency_zero">$0.00</string>
+    <string name="percent_zero">0%</string>
+    <string name="legend_empty">No purchases yet — mark items as bought to see the chart.</string>
+    <string name="legend_item">• %1$s: %2$s</string>
+
+    <string name="budget_title">Budget: $%1$.2f</string>
+    <string name="budget_spent_line">$%1$.2f spent out of $%2$.2f</string>
+    <string name="budget_percent">%1$d%% Spent</string>
+    <string name="set_budget">Set Budget</string>
+    <string name="edit_budget">Edit Budget</string>
+
+
+
+
 
 
 </resources>

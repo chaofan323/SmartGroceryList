@@ -36,6 +36,7 @@ object GroceryRepository {
         }
     }
 
+    @Suppress("unused")
     fun togglePurchased(id: Int) {
         val item = getItemById(id)
         item?.let {
@@ -81,11 +82,13 @@ object GroceryRepository {
             .apply()
     }
 
+    @Suppress("unused")
     fun getRemainingBudget(context: Context): Double {
         val budget = getBudget(context)
         return budget - getTotalSpent()
     }
 
+    @Suppress("unused")
     fun getBudgetPercentage(context: Context): Int {
         val budget = getBudget(context)
         if (budget <= 0) return 0

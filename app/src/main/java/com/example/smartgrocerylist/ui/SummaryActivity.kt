@@ -104,7 +104,7 @@ class SummaryActivity : AppCompatActivity() {
 
         if (data.isEmpty()) {
             val tv = TextView(this).apply {
-                text = "No purchases yet — mark items as bought to see the chart."
+                text = getString(R.string.legend_empty)
                 alpha = 0.75f
                 textSize = 14f
                 setPadding(6, 6, 6, 6)
@@ -115,13 +115,14 @@ class SummaryActivity : AppCompatActivity() {
 
         data.entries.sortedByDescending { it.value }.forEach { (cat, value) ->
             val tv = TextView(this).apply {
-                text = "• $cat: ${formatCurrency(value)}"
+                text = getString(R.string.legend_item, cat, formatCurrency(value))
                 textSize = 14f
                 setPadding(6, 6, 6, 6)
             }
             legendContainer.addView(tv)
         }
     }
+
 
 
 }

@@ -19,14 +19,18 @@ class PieChartView @JvmOverloads constructor(
         style = Paint.Style.FILL
     }
 
+    private val rect = RectF()
+    private var padding = 0f
+    private var size = 0f
+
     private val palette = intArrayOf(
-        0xFF4CAF50.toInt(), // green
-        0xFF2196F3.toInt(), // blue
-        0xFFFFC107.toInt(), // amber
-        0xFFFF5722.toInt(), // deep orange
-        0xFF9C27B0.toInt(), // purple
-        0xFF00BCD4.toInt(), // cyan
-        0xFF795548.toInt()  // brown
+        0xFF4CAF50.toInt(),
+        0xFF2196F3.toInt(),
+        0xFFFFC107.toInt(),
+        0xFFFF5722.toInt(),
+        0xFF9C27B0.toInt(),
+        0xFF00BCD4.toInt(),
+        0xFF795548.toInt()
     )
 
     fun setData(map: Map<String, Double>) {
@@ -36,16 +40,19 @@ class PieChartView @JvmOverloads constructor(
         invalidate()
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        size = min(w, h).toFloat()
+        padding = size * 0.08f
+        rect.set(padding, padding, size - padding, size - padding)
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (data.isEmpty()) return
 
         val total = data.sumOf { it.second }
         if (total <= 0.0) return
-
-        val size = min(width, height).toFloat()
-        val padding = size * 0.08f
-        val rect = RectF(padding, padding, size - padding, size - padding)
 
         var startAngle = -90f
         var i = 0
