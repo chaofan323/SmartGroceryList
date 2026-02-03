@@ -33,4 +33,14 @@
     <string name="summary_remaining_label">Remaining ($)</string>
     <string name="summary_progress_label">Spending progress</string>
 
+    <string name="budget_title_placeholder">Budget: $0.00</string>
+    <string name="budget_spent_placeholder">$0.00 spent out of $0.00</string>
+    <string name="budget_view_details">VIEW DETAILS</string>
+    <string name="budget_emoji_placeholder">🙂</string>
+    <string name="budget_percent_placeholder">0% Spent</string>
+    <string name="budget_set">Set Budget</string>
+    <string name="summary_spent_by_category">Spent by category</string>
+
+
+
 </resources>
