@@ -1,125 +1,213 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/summaryRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@android:color/white">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-        app:title="@string/summary_title"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <!-- Estimated -->
-    <TextView
-        android:id="@+id/tvEstimatedLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/summary_estimated_label"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+            app:title="@string/summary_title"
+            app:titleCentered="true"
+            app:navigationIcon="@drawable/outline_arrow_back_24"
+            app:navigationIconTint="@android:color/white"
+            app:titleTextColor="@android:color/white" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <TextView
-        android:id="@+id/tvEstimatedValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="$0.00"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvEstimatedLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!-- Spent -->
-    <TextView
-        android:id="@+id/tvSpentLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/summary_spent_label"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tvEstimatedValue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvSpentValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="$0.00"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvSpentLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <!-- Totals card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="14dp">
 
-    <!-- Remaining -->
-    <TextView
-        android:id="@+id/tvRemainingLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/summary_remaining_label"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tvSpentValue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvRemainingValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="$0.00"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvRemainingLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+                    <!-- Row 1 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3">
 
-    <!-- Progress label -->
-    <TextView
-        android:id="@+id/tvProgressLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/summary_progress_label"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tvRemainingValue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
 
-    <!-- ProgressBar -->
-    <ProgressBar
-        android:id="@+id/pbSpendingProgress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:max="100"
-        android:progress="0"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvProgressLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+                            <TextView
+                                android:id="@+id/tvEstimatedLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/summary_estimated_label"
+                                android:alpha="0.70"
+                                android:textSize="13sp"/>
 
-    <!-- Progress text -->
-    <TextView
-        android:id="@+id/tvProgressValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="0%"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/pbSpendingProgress"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+                            <TextView
+                                android:id="@+id/tvEstimatedValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$0.00"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                android:layout_marginTop="6dp"/>
+                        </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvSpentLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/summary_spent_label"
+                                android:alpha="0.70"
+                                android:textSize="13sp"/>
+
+                            <TextView
+                                android:id="@+id/tvSpentValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$0.00"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                android:layout_marginTop="6dp"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvRemainingLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/summary_remaining_label"
+                                android:alpha="0.70"
+                                android:textSize="13sp"/>
+
+                            <TextView
+                                android:id="@+id/tvRemainingValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$0.00"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                android:layout_marginTop="6dp"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Progress -->
+                    <TextView
+                        android:id="@+id/tvProgressLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/summary_progress_label"
+                        android:alpha="0.80"
+                        android:textSize="13sp"
+                        android:layout_marginTop="18dp"/>
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/pbSpendingProgress"
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        android:layout_marginTop="10dp"
+                        android:indeterminate="false"
+                        android:progress="0" />
+
+                    <TextView
+                        android:id="@+id/tvProgressValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0%"
+                        android:layout_marginTop="10dp"
+                        android:textStyle="bold"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Pie chart card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvPieLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/summary_spent_by_category"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- Center the chart -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="260dp"
+                        android:layout_gravity="center"
+                        android:foregroundGravity="center">
+
+                        <com.example.smartgrocerylist.ui.PieChartView
+                            android:id="@+id/pieChart"
+                            android:layout_width="260dp"
+                            android:layout_height="260dp"
+                            android:layout_gravity="center" />
+                    </FrameLayout>
+
+                    <!-- Legend -->
+                    <LinearLayout
+                        android:id="@+id/legendContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="12dp"/>
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

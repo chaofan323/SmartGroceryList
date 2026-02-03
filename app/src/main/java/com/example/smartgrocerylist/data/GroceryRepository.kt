@@ -1,6 +1,10 @@
 package com.example.smartgrocerylist.data
 
+import android.content.Context
+
 object GroceryRepository {
+
+    /* ---------------- Existing item logic ---------------- */
 
     private val items = mutableListOf<GroceryItem>()
     private var nextId = 1
@@ -56,5 +60,35 @@ object GroceryRepository {
 
     fun deleteItem(id: Int) {
         items.removeAll { it.id == id }
+    }
+
+    /* ---------------- Budget logic (NEW) ---------------- */
+
+    private const val PREFS_NAME = "budget_prefs"
+    private const val KEY_BUDGET = "budget_value"
+
+    fun getBudget(context: Context): Double {
+        val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return java.lang.Double.longBitsToDouble(
+            sp.getLong(KEY_BUDGET, java.lang.Double.doubleToLongBits(0.0))
+        )
+    }
+
+    fun setBudget(context: Context, value: Double) {
+        val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        sp.edit()
+            .putLong(KEY_BUDGET, java.lang.Double.doubleToLongBits(value))
+            .apply()
+    }
+
+    fun getRemainingBudget(context: Context): Double {
+        val budget = getBudget(context)
+        return budget - getTotalSpent()
+    }
+
+    fun getBudgetPercentage(context: Context): Int {
+        val budget = getBudget(context)
+        if (budget <= 0) return 0
+        return ((getTotalSpent() / budget) * 100).toInt()
     }
 }

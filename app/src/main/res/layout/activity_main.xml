@@ -21,29 +21,131 @@
             app:titleTextColor="@color/white"
             app:navigationIcon="@drawable/outline_arrow_back_24"
             app:navigationIconTint="@color/white"
-            app:titleCentered="true"
-            app:menu="@menu/menu_main" />
+            app:titleCentered="true" />
 
 
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Content (RecyclerView + Empty State) -->
+    <!-- Content (Budget Card + RecyclerView + Empty State) -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- List -->
-
-        <!-- Empty state -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler"
+        <!-- Main content stack -->
+        <LinearLayout
+            android:id="@+id/contentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:padding="12dp" />
+            android:orientation="vertical"
+            android:padding="12dp">
 
+            <!-- Budget Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/budgetCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <!-- Top row: Budget title + View Details button -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvBudgetTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/budget_title_placeholder"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnViewDetails"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="@string/budget_view_details"
+                            android:textAllCaps="true"
+                            app:cornerRadius="20dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvSpentLine"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="@string/budget_spent_placeholder"
+                        android:textSize="18sp" />
+
+                    <!-- Progress row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progressBudget"
+                            android:layout_width="0dp"
+                            android:layout_height="10dp"
+                            android:layout_weight="1"
+                            android:indeterminate="false"
+                            android:progress="0" />
+
+                        <TextView
+                            android:id="@+id/tvBudgetEmoji"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="@string/budget_emoji_placeholder"
+                            android:textSize="22sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvPercent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/budget_percent_placeholder"
+                        android:textSize="16sp"
+                        android:alpha="0.8" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSetBudget"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/budget_set"
+                        app:cornerRadius="10dp"
+                        app:strokeWidth="1dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false" />
+
+        </LinearLayout>
+
+        <!-- Empty state -->
         <LinearLayout
             android:id="@+id/emptyStateContainer"
             android:layout_width="match_parent"
@@ -80,6 +182,7 @@
         </LinearLayout>
 
     </FrameLayout>
+
 
     <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
