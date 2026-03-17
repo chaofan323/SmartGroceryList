@@ -1,97 +1,57 @@
 package com.example.smartgrocerylist.data
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 
-object GroceryRepository {
+class GroceryRepository(private val dao: GroceryDao) {
 
-    /* ---------------- Existing item logic ---------------- */
+    // LiveData - UI observes this and auto-updates
+    val allItems: LiveData<List<GroceryItem>> = dao.getAllItems()
 
-    private val items = mutableListOf<GroceryItem>()
-    private var nextId = 1
+    fun getAllItemsSync(): List<GroceryItem> = dao.getAllItemsSync()
 
-    fun getAllItems(): List<GroceryItem> {
-        return items.toList()
-    }
-
-    fun getItemById(id: Int): GroceryItem? {
-        return items.find { it.id == id }
-    }
+    fun getItemById(id: Int): GroceryItem? = dao.getItemById(id)
 
     fun addItem(name: String, price: Double, category: String) {
-        val item = GroceryItem(
-            id = nextId++,
-            name = name,
-            price = price,
-            category = category
-        )
-        items.add(item)
+        val item = GroceryItem(name = name, price = price, category = category)
+        dao.insert(item)
     }
 
     fun updateItem(id: Int, name: String, price: Double, category: String) {
-        val item = getItemById(id)
-        item?.let {
-            it.name = name
-            it.price = price
-            it.category = category
-        }
-    }
-
-    @Suppress("unused")
-    fun togglePurchased(id: Int) {
-        val item = getItemById(id)
-        item?.let {
-            it.purchased = !it.purchased
-        }
+        val existing = dao.getItemById(id) ?: return
+        val updated = existing.copy(name = name, price = price, category = category)
+        dao.update(updated)
     }
 
     fun setPurchased(id: Int, purchased: Boolean) {
-        val item = getItemById(id)
-        item?.purchased = purchased
+        val existing = dao.getItemById(id) ?: return
+        val updated = existing.copy(purchased = purchased)
+        dao.update(updated)
     }
 
-    fun getTotalEstimatedCost(): Double {
-        return items.sumOf { it.price }
-    }
+    fun deleteItem(id: Int) = dao.deleteById(id)
 
-    fun getTotalSpent(): Double {
-        return items
-            .filter { it.purchased }
-            .sumOf { it.price }
-    }
+    fun getTotalEstimatedCost(): Double = dao.getTotalEstimatedCost()
 
-    fun deleteItem(id: Int) {
-        items.removeAll { it.id == id }
-    }
+    fun getTotalSpent(): Double = dao.getTotalSpent()
 
-    /* ---------------- Budget logic (NEW) ---------------- */
+    // Budget stays in SharedPreferences
+    companion object {
+        private const val PREFS_NAME = "budget_prefs"
+        private const val KEY_BUDGET = "budget_value"
 
-    private const val PREFS_NAME = "budget_prefs"
-    private const val KEY_BUDGET = "budget_value"
+        fun getBudget(context: Context): Double {
+            val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            return java.lang.Double.longBitsToDouble(
+                sp.getLong(KEY_BUDGET, java.lang.Double.doubleToLongBits(0.0))
+            )
+        }
 
-    fun getBudget(context: Context): Double {
-        val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return java.lang.Double.longBitsToDouble(
-            sp.getLong(KEY_BUDGET, java.lang.Double.doubleToLongBits(0.0))
-        )
-    }
-
-    fun setBudget(context: Context, value: Double) {
-        val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        sp.edit()
-            .putLong(KEY_BUDGET, java.lang.Double.doubleToLongBits(value))
-            .apply()
-    }
-
-    @Suppress("unused")
-    fun getRemainingBudget(context: Context): Double {
-        val budget = getBudget(context)
-        return budget - getTotalSpent()
-    }
-
-    @Suppress("unused")
-    fun getBudgetPercentage(context: Context): Int {
-        val budget = getBudget(context)
-        if (budget <= 0) return 0
-        return ((getTotalSpent() / budget) * 100).toInt()
+        fun setBudget(context: Context, value: Double) {
+            val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            sp.edit()
+                .putLong(KEY_BUDGET, java.lang.Double.doubleToLongBits(value))
+                .apply()
+        }
     }
 }
