@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.smartgrocerylist.R
 import java.util.Locale
+import android.widget.LinearLayout
+
 
 class SummaryActivity : AppCompatActivity() {
 
@@ -20,6 +22,10 @@ class SummaryActivity : AppCompatActivity() {
     private lateinit var legendContainer: LinearLayout
 
     private lateinit var viewModel: GroceryViewModel
+
+    private lateinit var pieChart: PieChartView
+    private lateinit var legendContainer: LinearLayout
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +90,7 @@ class SummaryActivity : AppCompatActivity() {
         pieChart.setData(spentByCategory)
         renderLegend(spentByCategory)
     }
+
 
     private fun formatCurrency(value: Double): String {
         return String.format(Locale.US, "$%.2f", value)
