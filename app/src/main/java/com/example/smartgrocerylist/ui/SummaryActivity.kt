@@ -1,11 +1,12 @@
 package com.example.smartgrocerylist.ui
 
 import android.os.Bundle
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.smartgrocerylist.R
-import com.example.smartgrocerylist.data.GroceryRepository
 import java.util.Locale
 import android.widget.LinearLayout
 
@@ -17,6 +18,10 @@ class SummaryActivity : AppCompatActivity() {
     private lateinit var tvRemainingValue: TextView
     private lateinit var pbSpendingProgress: ProgressBar
     private lateinit var tvProgressValue: TextView
+    private lateinit var pieChart: PieChartView
+    private lateinit var legendContainer: LinearLayout
+
+    private lateinit var viewModel: GroceryViewModel
 
     private lateinit var pieChart: PieChartView
     private lateinit var legendContainer: LinearLayout
@@ -25,27 +30,26 @@ class SummaryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_summary)
+
+        viewModel = ViewModelProvider(this)[GroceryViewModel::class.java]
+
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         bindViews()
-        updateSummaryUI() // initial load
+
+        // Observe LiveData — summary updates automatically
+        viewModel.allItems.observe(this) { items ->
+            updateSummaryUI(items)
+        }
     }
 
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
+            android.R.id.home -> { finish(); true }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateSummaryUI()
     }
 
     private fun bindViews() {
@@ -56,16 +60,12 @@ class SummaryActivity : AppCompatActivity() {
         tvProgressValue = findViewById(R.id.tvProgressValue)
         pieChart = findViewById(R.id.pieChart)
         legendContainer = findViewById(R.id.legendContainer)
-
     }
 
-    private fun updateSummaryUI() {
-        // totals
-        val estimated = GroceryRepository.getTotalEstimatedCost()
-        val spent = GroceryRepository.getTotalSpent()
-
-        // NEW: budget-based remaining/progress
-        val budget = GroceryRepository.getBudget(this)
+    private fun updateSummaryUI(items: List<com.example.smartgrocerylist.data.GroceryItem>) {
+        val estimated = items.sumOf { it.price }
+        val spent = items.filter { it.purchased }.sumOf { it.price }
+        val budget = viewModel.getBudget()
         val remaining = if (budget > 0.0) budget - spent else 0.0
 
         tvEstimatedValue.text = formatCurrency(estimated)
@@ -74,16 +74,14 @@ class SummaryActivity : AppCompatActivity() {
 
         val progressPercent = if (budget > 0.0) {
             ((spent / budget) * 100.0).toInt().coerceAtLeast(0)
-        } else {
-            0
-        }
+        } else 0
 
         pbSpendingProgress.max = 100
         pbSpendingProgress.progress = progressPercent.coerceIn(0, 100)
         tvProgressValue.text = String.format(Locale.US, "%d%%", progressPercent)
 
-        // Pie: Spent by category (purchased items only)
-        val spentByCategory = GroceryRepository.getAllItems()
+        // Pie chart: spent by category
+        val spentByCategory = items
             .filter { it.purchased }
             .groupBy { it.category }
             .mapValues { entry -> entry.value.sumOf { it.price } }
@@ -91,7 +89,6 @@ class SummaryActivity : AppCompatActivity() {
 
         pieChart.setData(spentByCategory)
         renderLegend(spentByCategory)
-
     }
 
 
@@ -101,7 +98,6 @@ class SummaryActivity : AppCompatActivity() {
 
     private fun renderLegend(data: Map<String, Double>) {
         legendContainer.removeAllViews()
-
         if (data.isEmpty()) {
             val tv = TextView(this).apply {
                 text = getString(R.string.legend_empty)
@@ -112,7 +108,6 @@ class SummaryActivity : AppCompatActivity() {
             legendContainer.addView(tv)
             return
         }
-
         data.entries.sortedByDescending { it.value }.forEach { (cat, value) ->
             val tv = TextView(this).apply {
                 text = getString(R.string.legend_item, cat, formatCurrency(value))
@@ -122,8 +117,4 @@ class SummaryActivity : AppCompatActivity() {
             legendContainer.addView(tv)
         }
     }
-
-
-
 }
-
