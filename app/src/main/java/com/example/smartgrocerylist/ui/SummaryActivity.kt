@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.smartgrocerylist.R
 import java.util.Locale
-import android.widget.LinearLayout
 
 
 class SummaryActivity : AppCompatActivity() {
@@ -23,8 +22,6 @@ class SummaryActivity : AppCompatActivity() {
 
     private lateinit var viewModel: GroceryViewModel
 
-    private lateinit var pieChart: PieChartView
-    private lateinit var legendContainer: LinearLayout
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
