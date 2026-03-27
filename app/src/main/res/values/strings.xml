@@ -4,6 +4,8 @@
     <string name="empty_icon_desc">Empty list icon</string>
     <string name="empty_title">Your list is empty.</string>
     <string name="empty_subtitle">Tap + to add an item</string>
+    <string name="no_results_title">No matching items</string>
+    <string name="no_results_subtitle">Try a different keyword or category.</string>
     <string name="add_grocery_item">Add grocery item</string>
     <string name="mark_purchased">Mark item as purchased</string>
     <string name="delete_item">Delete item</string>
@@ -17,6 +19,7 @@
     <string name="label_category">Category</string>
     <string name="btn_save">Save</string>
     <string name="btn_cancel">Cancel</string>
+
     <string-array name="category_options">
         <item>Select a category</item>
         <item>Produce</item>
@@ -26,20 +29,40 @@
         <item>Other</item>
     </string-array>
 
+    <string-array name="filter_category_options">
+        <item>All</item>
+        <item>Produce</item>
+        <item>Dairy</item>
+        <item>Meat</item>
+        <item>Snacks</item>
+        <item>Other</item>
+    </string-array>
+
+    <!-- Main screen filter -->
+    <string name="search_filter_title">Search / Filter</string>
+    <string name="search_hint">Search by item name or category</string>
+
+    <!-- Summary -->
     <string name="menu_summary">Summary</string>
     <string name="summary_title">Budget &amp; Spending Summary</string>
     <string name="summary_estimated_label">Total estimated ($)</string>
     <string name="summary_spent_label">Total spent ($)</string>
     <string name="summary_remaining_label">Remaining ($)</string>
     <string name="summary_progress_label">Spending progress</string>
+    <string name="summary_spent_by_category">Spent by category</string>
 
+    <!-- Budget -->
     <string name="budget_title_placeholder">Budget: $0.00</string>
     <string name="budget_spent_placeholder">$0.00 spent out of $0.00</string>
     <string name="budget_view_details">VIEW DETAILS</string>
     <string name="budget_emoji_placeholder">🙂</string>
     <string name="budget_percent_placeholder">0% Spent</string>
     <string name="budget_set">Set Budget</string>
-    <string name="summary_spent_by_category">Spent by category</string>
+    <string name="set_budget">Set Budget</string>
+    <string name="edit_budget">Edit Budget</string>
+    <string name="set_budget_message">Enter your total budget for this shopping trip.</string>
+    <string name="budget_input_hint">e.g., 50.00</string>
+    <string name="invalid_budget_amount">Please enter a valid amount.</string>
 
     <string name="currency_zero">$0.00</string>
     <string name="percent_zero">0%</string>
@@ -49,12 +72,4 @@
     <string name="budget_title">Budget: $%1$.2f</string>
     <string name="budget_spent_line">$%1$.2f spent out of $%2$.2f</string>
     <string name="budget_percent">%1$d%% Spent</string>
-    <string name="set_budget">Set Budget</string>
-    <string name="edit_budget">Edit Budget</string>
-
-
-
-
-
-
 </resources>

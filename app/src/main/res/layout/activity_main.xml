@@ -7,7 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Top App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -18,22 +17,18 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/brand_green"
             app:title="@string/app_name"
+            app:titleCentered="true"
             app:titleTextColor="@color/white"
             app:navigationIcon="@drawable/outline_arrow_back_24"
-            app:navigationIconTint="@color/white"
-            app:titleCentered="true" />
-
-
+            app:navigationIconTint="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Content (Budget Card + RecyclerView + Empty State) -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Main content stack -->
         <LinearLayout
             android:id="@+id/contentContainer"
             android:layout_width="match_parent"
@@ -41,14 +36,13 @@
             android:orientation="vertical"
             android:padding="12dp">
 
-            <!-- Budget Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/budgetCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:layout_marginBottom="12dp">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -56,12 +50,11 @@
                     android:orientation="vertical"
                     android:padding="14dp">
 
-                    <!-- Top row: Budget title + View Details button -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/tvBudgetTitle"
@@ -89,13 +82,12 @@
                         android:text="@string/budget_spent_placeholder"
                         android:textSize="18sp" />
 
-                    <!-- Progress row -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <com.google.android.material.progressindicator.LinearProgressIndicator
                             android:id="@+id/progressBudget"
@@ -119,9 +111,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:alpha="0.8"
                         android:text="@string/budget_percent_placeholder"
-                        android:textSize="16sp"
-                        android:alpha="0.8" />
+                        android:textSize="16sp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSetBudget"
@@ -135,7 +127,45 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- List -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/filterCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/search_filter_title"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="@string/search_hint"
+                        android:inputType="text"
+                        android:padding="12dp" />
+
+                    <Spinner
+                        android:id="@+id/spCategoryFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler"
                 android:layout_width="match_parent"
@@ -145,7 +175,6 @@
 
         </LinearLayout>
 
-        <!-- Empty state -->
         <LinearLayout
             android:id="@+id/emptyStateContainer"
             android:layout_width="match_parent"
@@ -176,15 +205,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:alpha="0.75"
                 android:text="@string/empty_subtitle"
-                android:textSize="16sp"
-                android:alpha="0.75" />
+                android:textSize="16sp" />
         </LinearLayout>
 
     </FrameLayout>
 
-
-    <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
         android:layout_width="wrap_content"
@@ -192,10 +219,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="@string/add_grocery_item"
-        app:srcCompat="@drawable/outline_add_circle_24"
         app:backgroundTint="@color/brand_green"
+        app:srcCompat="@drawable/outline_add_circle_24"
         app:tint="@color/white" />
 
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
