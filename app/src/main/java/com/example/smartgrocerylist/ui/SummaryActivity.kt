@@ -5,6 +5,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.smartgrocerylist.R
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.util.Locale
@@ -18,6 +20,9 @@ class SummaryActivity : AppCompatActivity() {
     private lateinit var tvProgressValue: TextView
     private lateinit var pieChart: PieChartView
     private lateinit var legendContainer: LinearLayout
+
+    private lateinit var rvSuggestions: RecyclerView
+    private lateinit var suggestionAdapter: SimpleStringAdapter
 
     private lateinit var viewModel: GroceryViewModel
 
@@ -39,6 +44,7 @@ class SummaryActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         bindViews()
+        setupSuggestionsList()
         observeSummaryData()
     }
 
@@ -65,6 +71,14 @@ class SummaryActivity : AppCompatActivity() {
         tvProgressValue = findViewById(R.id.tvProgressValue)
         pieChart = findViewById(R.id.pieChart)
         legendContainer = findViewById(R.id.legendContainer)
+        rvSuggestions = findViewById(R.id.rvSuggestions)
+    }
+
+    private fun setupSuggestionsList() {
+        suggestionAdapter = SimpleStringAdapter(emptyList())
+        rvSuggestions.layoutManager = LinearLayoutManager(this)
+        rvSuggestions.adapter = suggestionAdapter
+        rvSuggestions.isNestedScrollingEnabled = false
     }
 
     private fun observeSummaryData() {
@@ -91,6 +105,10 @@ class SummaryActivity : AppCompatActivity() {
         viewModel.spentByCategory.observe(this) { value ->
             latestSpentByCategory = value ?: emptyMap()
             renderChart()
+        }
+
+        viewModel.smartSuggestions.observe(this) { suggestions ->
+            suggestionAdapter.update(suggestions ?: emptyList())
         }
     }
 

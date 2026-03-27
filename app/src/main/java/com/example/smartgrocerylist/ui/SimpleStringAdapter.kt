@@ -7,8 +7,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class SimpleStringAdapter(
-    private val items: List<String>
+    items: List<String>
 ) : RecyclerView.Adapter<SimpleStringAdapter.VH>() {
+
+    private val data = items.toMutableList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
@@ -17,10 +19,16 @@ class SimpleStringAdapter(
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.text.text = items[position]
+        holder.text.text = "• ${data[position]}"
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int = data.size
+
+    fun update(newItems: List<String>) {
+        data.clear()
+        data.addAll(newItems)
+        notifyDataSetChanged()
+    }
 
     class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val text: TextView = itemView.findViewById(android.R.id.text1)
