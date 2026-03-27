@@ -1,6 +1,9 @@
 package com.example.smartgrocerylist.ui
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.view.Menu
@@ -13,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -37,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var groceryAdapter: GroceryAdapter
     private lateinit var viewModel: GroceryViewModel
 
-    // Budget UI
     private lateinit var tvBudgetTitle: TextView
     private lateinit var tvSpentLine: TextView
     private lateinit var tvPercent: TextView
@@ -47,23 +50,34 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnSetBudget: MaterialButton
     private lateinit var budgetCard: View
 
-    // Search / filter UI (from Phase 1)
     private lateinit var filterCard: View
     private lateinit var etSearch: EditText
     private lateinit var spCategoryFilter: Spinner
 
-    // Latest observed data
     private var latestAllItems: List<GroceryItem> = emptyList()
     private var latestFilteredItems: List<GroceryItem> = emptyList()
 
-    // Latest observed budget metrics
     private var latestBudgetValue: Double = 0.0
     private var latestSpentValue: Double = 0.0
     private var latestSpendingPercent: Int = 0
 
+    private var pendingReminderDelayMinutes: Int? = null
+
     private val addEditLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
-            // Room + LiveData will update UI automatically
+        }
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            val delay = pendingReminderDelayMinutes
+            pendingReminderDelayMinutes = null
+
+            if (granted && delay != null) {
+                ReminderScheduler.scheduleReminder(this, delay)
+                Toast.makeText(this, "Reminder set.", Toast.LENGTH_SHORT).show()
+            } else if (!granted) {
+                Toast.makeText(this, "Notification permission is required for reminders.", Toast.LENGTH_SHORT).show()
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -270,6 +284,10 @@ class MainActivity : AppCompatActivity() {
                 finish()
                 true
             }
+            R.id.action_set_reminder -> {
+                showReminderDialog()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -304,5 +322,36 @@ class MainActivity : AppCompatActivity() {
                 viewModel.setBudget(value)
             }
             .show()
+    }
+
+    private fun showReminderDialog() {
+        val options = arrayOf("In 1 minute", "In 10 minutes", "In 30 minutes", "In 60 minutes")
+        val delayValues = intArrayOf(1, 10, 30, 60)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Set Reminder")
+            .setItems(options) { _, which ->
+                scheduleReminderWithPermission(delayValues[which])
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun scheduleReminderWithPermission(delayMinutes: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!granted) {
+                pendingReminderDelayMinutes = delayMinutes
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return
+            }
+        }
+
+        ReminderScheduler.scheduleReminder(this, delayMinutes)
+        Toast.makeText(this, "Reminder set.", Toast.LENGTH_SHORT).show()
     }
 }
