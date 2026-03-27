@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnSetBudget: MaterialButton
     private lateinit var budgetCard: View
 
-    // Search / filter UI
+    // Search / filter UI (from Phase 1)
     private lateinit var filterCard: View
     private lateinit var etSearch: EditText
     private lateinit var spCategoryFilter: Spinner
@@ -56,11 +56,14 @@ class MainActivity : AppCompatActivity() {
     private var latestAllItems: List<GroceryItem> = emptyList()
     private var latestFilteredItems: List<GroceryItem> = emptyList()
 
+    // Latest observed budget metrics
+    private var latestBudgetValue: Double = 0.0
+    private var latestSpentValue: Double = 0.0
+    private var latestSpendingPercent: Int = 0
+
     private val addEditLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                updateBudgetUI()
-            }
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+            // Room + LiveData will update UI automatically
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,19 +125,7 @@ class MainActivity : AppCompatActivity() {
         recycler.adapter = groceryAdapter
 
         setupFilterControls()
-
-        // Observe full list
-        viewModel.allItems.observe(this) { items ->
-            latestAllItems = items
-            updateBudgetUI()
-            updateMainContent()
-        }
-
-        // Observe filtered list
-        viewModel.filteredItems.observe(this) { items ->
-            latestFilteredItems = items
-            updateMainContent()
-        }
+        observeData()
 
         fabAdd.setOnClickListener {
             val intent = Intent(this, AddEditItemActivity::class.java).apply {
@@ -142,6 +133,11 @@ class MainActivity : AppCompatActivity() {
             }
             addEditLauncher.launch(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.reloadBudget()
     }
 
     private fun setupFilterControls() {
@@ -157,21 +153,49 @@ class MainActivity : AppCompatActivity() {
             viewModel.setSearchQuery(text?.toString().orEmpty())
         }
 
-        spCategoryFilter.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: android.widget.AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selected = parent?.getItemAtPosition(position)?.toString()
-                    ?: GroceryViewModel.CATEGORY_ALL
-                viewModel.setSelectedCategory(selected)
-            }
+        spCategoryFilter.onItemSelectedListener =
+            object : android.widget.AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: android.widget.AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selected = parent?.getItemAtPosition(position)?.toString()
+                        ?: GroceryViewModel.CATEGORY_ALL
+                    viewModel.setSelectedCategory(selected)
+                }
 
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {
-                viewModel.setSelectedCategory(GroceryViewModel.CATEGORY_ALL)
+                override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {
+                    viewModel.setSelectedCategory(GroceryViewModel.CATEGORY_ALL)
+                }
             }
+    }
+
+    private fun observeData() {
+        viewModel.allItems.observe(this) { items ->
+            latestAllItems = items
+            updateMainContent()
+        }
+
+        viewModel.filteredItems.observe(this) { items ->
+            latestFilteredItems = items
+            updateMainContent()
+        }
+
+        viewModel.currentBudget.observe(this) { budget ->
+            latestBudgetValue = budget ?: 0.0
+            renderBudgetCard()
+        }
+
+        viewModel.totalSpent.observe(this) { spent ->
+            latestSpentValue = spent ?: 0.0
+            renderBudgetCard()
+        }
+
+        viewModel.spendingPercent.observe(this) { percent ->
+            latestSpendingPercent = percent ?: 0
+            renderBudgetCard()
         }
     }
 
@@ -215,6 +239,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun renderBudgetCard() {
+        val budget = latestBudgetValue
+        val spent = latestSpentValue
+        val percent = latestSpendingPercent
+
+        tvBudgetTitle.text = getString(R.string.budget_title, budget)
+        tvSpentLine.text = getString(R.string.budget_spent_line, spent, budget)
+
+        progressBudget.max = 100
+        progressBudget.progress = percent.coerceIn(0, 100)
+        tvPercent.text = getString(R.string.budget_percent, percent)
+
+        tvBudgetEmoji.text = when {
+            budget <= 0.0 -> "📝"
+            percent < 50 -> "😊"
+            percent < 80 -> "🙂"
+            percent < 100 -> "😬"
+            else -> "😡"
+        }
+
+        btnSetBudget.text = getString(
+            if (budget <= 0.0) R.string.set_budget else R.string.edit_budget
+        )
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -245,44 +294,15 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton(R.string.btn_save) { _, _ ->
                 val value = input.text.toString().trim().toDoubleOrNull()
                 if (value == null || value < 0) {
-                    Toast.makeText(this, getString(R.string.invalid_budget_amount), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.invalid_budget_amount),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setPositiveButton
                 }
                 viewModel.setBudget(value)
-                updateBudgetUI()
             }
             .show()
-    }
-
-    private fun updateBudgetUI() {
-        val budget = viewModel.getBudget()
-        val spent = latestAllItems
-            .filter { it.purchased }
-            .sumOf { it.price }
-
-        val percent = if (budget <= 0.0) {
-            0
-        } else {
-            ((spent / budget) * 100).toInt().coerceAtLeast(0)
-        }
-
-        tvBudgetTitle.text = getString(R.string.budget_title, budget)
-        tvSpentLine.text = getString(R.string.budget_spent_line, spent, budget)
-
-        progressBudget.max = 100
-        progressBudget.progress = percent.coerceIn(0, 100)
-        tvPercent.text = getString(R.string.budget_percent, percent)
-
-        tvBudgetEmoji.text = when {
-            budget <= 0.0 -> "📝"
-            percent < 50 -> "😊"
-            percent < 80 -> "🙂"
-            percent < 100 -> "😬"
-            else -> "😡"
-        }
-
-        btnSetBudget.text = getString(
-            if (budget <= 0.0) R.string.set_budget else R.string.edit_budget
-        )
     }
 }

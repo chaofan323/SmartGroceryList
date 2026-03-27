@@ -2,27 +2,30 @@ package com.example.smartgrocerylist.ui
 
 import android.os.Bundle
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.smartgrocerylist.R
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.util.Locale
-
 
 class SummaryActivity : AppCompatActivity() {
 
     private lateinit var tvEstimatedValue: TextView
     private lateinit var tvSpentValue: TextView
     private lateinit var tvRemainingValue: TextView
-    private lateinit var pbSpendingProgress: ProgressBar
+    private lateinit var pbSpendingProgress: LinearProgressIndicator
     private lateinit var tvProgressValue: TextView
     private lateinit var pieChart: PieChartView
     private lateinit var legendContainer: LinearLayout
 
     private lateinit var viewModel: GroceryViewModel
 
-
+    private var latestEstimated: Double = 0.0
+    private var latestSpent: Double = 0.0
+    private var latestRemaining: Double = 0.0
+    private var latestProgressPercent: Int = 0
+    private var latestSpentByCategory: Map<String, Double> = emptyMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,21 +33,26 @@ class SummaryActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[GroceryViewModel::class.java]
 
-        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+        val toolbar =
+            findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         bindViews()
+        observeSummaryData()
+    }
 
-        // Observe LiveData — summary updates automatically
-        viewModel.allItems.observe(this) { items ->
-            updateSummaryUI(items)
-        }
+    override fun onResume() {
+        super.onResume()
+        viewModel.reloadBudget()
     }
 
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
-            android.R.id.home -> { finish(); true }
+            android.R.id.home -> {
+                finish()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -59,35 +67,47 @@ class SummaryActivity : AppCompatActivity() {
         legendContainer = findViewById(R.id.legendContainer)
     }
 
-    private fun updateSummaryUI(items: List<com.example.smartgrocerylist.data.GroceryItem>) {
-        val estimated = items.sumOf { it.price }
-        val spent = items.filter { it.purchased }.sumOf { it.price }
-        val budget = viewModel.getBudget()
-        val remaining = if (budget > 0.0) budget - spent else 0.0
+    private fun observeSummaryData() {
+        viewModel.totalEstimated.observe(this) { value ->
+            latestEstimated = value ?: 0.0
+            renderTotals()
+        }
 
-        tvEstimatedValue.text = formatCurrency(estimated)
-        tvSpentValue.text = formatCurrency(spent)
-        tvRemainingValue.text = formatCurrency(remaining)
+        viewModel.totalSpent.observe(this) { value ->
+            latestSpent = value ?: 0.0
+            renderTotals()
+        }
 
-        val progressPercent = if (budget > 0.0) {
-            ((spent / budget) * 100.0).toInt().coerceAtLeast(0)
-        } else 0
+        viewModel.remainingBudget.observe(this) { value ->
+            latestRemaining = value ?: 0.0
+            renderTotals()
+        }
 
-        pbSpendingProgress.max = 100
-        pbSpendingProgress.progress = progressPercent.coerceIn(0, 100)
-        tvProgressValue.text = String.format(Locale.US, "%d%%", progressPercent)
+        viewModel.spendingPercent.observe(this) { value ->
+            latestProgressPercent = value ?: 0
+            renderTotals()
+        }
 
-        // Pie chart: spent by category
-        val spentByCategory = items
-            .filter { it.purchased }
-            .groupBy { it.category }
-            .mapValues { entry -> entry.value.sumOf { it.price } }
-            .filterValues { it > 0.0 }
-
-        pieChart.setData(spentByCategory)
-        renderLegend(spentByCategory)
+        viewModel.spentByCategory.observe(this) { value ->
+            latestSpentByCategory = value ?: emptyMap()
+            renderChart()
+        }
     }
 
+    private fun renderTotals() {
+        tvEstimatedValue.text = formatCurrency(latestEstimated)
+        tvSpentValue.text = formatCurrency(latestSpent)
+        tvRemainingValue.text = formatCurrency(latestRemaining)
+
+        pbSpendingProgress.max = 100
+        pbSpendingProgress.progress = latestProgressPercent.coerceIn(0, 100)
+        tvProgressValue.text = String.format(Locale.US, "%d%%", latestProgressPercent)
+    }
+
+    private fun renderChart() {
+        pieChart.setData(latestSpentByCategory)
+        renderLegend(latestSpentByCategory)
+    }
 
     private fun formatCurrency(value: Double): String {
         return String.format(Locale.US, "$%.2f", value)
@@ -95,6 +115,7 @@ class SummaryActivity : AppCompatActivity() {
 
     private fun renderLegend(data: Map<String, Double>) {
         legendContainer.removeAllViews()
+
         if (data.isEmpty()) {
             val tv = TextView(this).apply {
                 text = getString(R.string.legend_empty)
@@ -105,13 +126,16 @@ class SummaryActivity : AppCompatActivity() {
             legendContainer.addView(tv)
             return
         }
-        data.entries.sortedByDescending { it.value }.forEach { (cat, value) ->
-            val tv = TextView(this).apply {
-                text = getString(R.string.legend_item, cat, formatCurrency(value))
-                textSize = 14f
-                setPadding(6, 6, 6, 6)
+
+        data.entries
+            .sortedByDescending { it.value }
+            .forEach { (category, value) ->
+                val tv = TextView(this).apply {
+                    text = getString(R.string.legend_item, category, formatCurrency(value))
+                    textSize = 14f
+                    setPadding(6, 6, 6, 6)
+                }
+                legendContainer.addView(tv)
             }
-            legendContainer.addView(tv)
-        }
     }
 }
