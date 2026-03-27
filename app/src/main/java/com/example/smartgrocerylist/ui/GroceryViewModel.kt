@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.smartgrocerylist.data.GroceryDatabase
 import com.example.smartgrocerylist.data.GroceryItem
 import com.example.smartgrocerylist.data.GroceryRepository
+import com.example.smartgrocerylist.data.PurchaseHistory
 
 class GroceryViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -18,6 +19,7 @@ class GroceryViewModel(application: Application) : AndroidViewModel(application)
     private val repository: GroceryRepository
 
     val allItems: LiveData<List<GroceryItem>>
+    val purchaseHistory: LiveData<List<PurchaseHistory>>
 
     private val searchQuery = MutableLiveData("")
     private val selectedCategory = MutableLiveData(CATEGORY_ALL)
@@ -37,6 +39,7 @@ class GroceryViewModel(application: Application) : AndroidViewModel(application)
         val dao = GroceryDatabase.getInstance(application).groceryDao()
         repository = GroceryRepository(dao)
         allItems = repository.allItems
+        purchaseHistory = repository.purchaseHistory
 
         currentBudget.value = GroceryRepository.getBudget(getApplication())
 
@@ -61,6 +64,7 @@ class GroceryViewModel(application: Application) : AndroidViewModel(application)
 
         smartSuggestions.addSource(allItems) { updateSmartSuggestions() }
         smartSuggestions.addSource(currentBudget) { updateSmartSuggestions() }
+        smartSuggestions.addSource(purchaseHistory) { updateSmartSuggestions() }
 
         updateFilteredItems()
         updateBudgetMetrics()
@@ -113,6 +117,7 @@ class GroceryViewModel(application: Application) : AndroidViewModel(application)
 
     private fun updateSmartSuggestions() {
         val items = allItems.value ?: emptyList()
+        val history = purchaseHistory.value ?: emptyList()
         val budget = currentBudget.value ?: 0.0
         val spent = items.filter { it.purchased }.sumOf { it.price }
         val estimated = items.sumOf { it.price }
@@ -154,19 +159,26 @@ class GroceryViewModel(application: Application) : AndroidViewModel(application)
         }
 
         val categories = items.map { it.category }.toSet()
-        if (!categories.contains("Produce")) {
+        val snackCount = items.count { it.category == "Snacks" }
+        val produceCount = items.count { it.category == "Produce" }
+        val dairyCount = items.count { it.category == "Dairy" }
+
+        if (snackCount >= 2 && produceCount == 0) {
+            suggestions.add("You have several Snacks items. Consider adding fruits or vegetables as well.")
+        } else if (produceCount == 0) {
             suggestions.add("Consider adding some Produce items for a more balanced grocery list.")
         }
 
-        if (!categories.contains("Dairy")) {
+        if (dairyCount == 0) {
             suggestions.add("You do not have any Dairy items. Check whether you still need milk, cheese, or yogurt.")
         }
 
-        val snackCount = items.count { it.category == "Snacks" }
-        val produceCount = items.count { it.category == "Produce" }
-        if (snackCount >= 2 && produceCount == 0) {
-            suggestions.add("You have several Snacks items. Consider adding fruits or vegetables as well.")
-        }
+        addHistoryBasedSuggestions(
+            suggestions = suggestions,
+            items = items,
+            history = history,
+            currentCategories = categories
+        )
 
         val expensiveUnpurchased = items
             .filter { !it.purchased }
@@ -177,6 +189,55 @@ class GroceryViewModel(application: Application) : AndroidViewModel(application)
         }
 
         smartSuggestions.value = suggestions.distinct().take(4)
+    }
+
+    private fun addHistoryBasedSuggestions(
+        suggestions: MutableList<String>,
+        items: List<GroceryItem>,
+        history: List<PurchaseHistory>,
+        currentCategories: Set<String>
+    ) {
+        if (history.isEmpty()) return
+
+        val currentNames = items.map { it.name.trim().lowercase() }.toSet()
+
+        val frequentMissingItem = history
+            .groupBy { it.itemName.trim().lowercase() to it.category }
+            .map { (_, entries) ->
+                FrequentHistoryItem(
+                    displayName = entries.first().itemName,
+                    category = entries.first().category,
+                    count = entries.size
+                )
+            }
+            .filter { it.count >= 2 && it.displayName.trim().lowercase() !in currentNames }
+            .sortedWith(
+                compareByDescending<FrequentHistoryItem> { it.count }
+                    .thenBy { it.displayName.lowercase() }
+            )
+            .firstOrNull()
+
+        if (frequentMissingItem != null) {
+            suggestions.add(
+                "Based on your purchase history, you often buy ${frequentMissingItem.displayName}. Consider adding it to this list."
+            )
+        }
+
+        val frequentMissingCategory = history
+            .groupBy { it.category }
+            .map { (category, entries) -> category to entries.size }
+            .filter { (category, count) -> count >= 2 && category !in currentCategories }
+            .sortedWith(
+                compareByDescending<Pair<String, Int>> { it.second }
+                    .thenBy { it.first }
+            )
+            .firstOrNull()
+
+        if (frequentMissingCategory != null) {
+            suggestions.add(
+                "You often buy items from the ${frequentMissingCategory.first} category. Check if you need anything from it today."
+            )
+        }
     }
 
     fun setSearchQuery(query: String) {
@@ -222,4 +283,10 @@ class GroceryViewModel(application: Application) : AndroidViewModel(application)
         GroceryRepository.setBudget(getApplication(), value)
         currentBudget.value = value
     }
+
+    private data class FrequentHistoryItem(
+        val displayName: String,
+        val category: String,
+        val count: Int
+    )
 }

@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [GroceryItem::class], version = 1)
+@Database(entities = [GroceryItem::class, PurchaseHistory::class], version = 2)
 abstract class GroceryDatabase : RoomDatabase() {
 
     abstract fun groceryDao(): GroceryDao
@@ -21,6 +21,7 @@ abstract class GroceryDatabase : RoomDatabase() {
                     GroceryDatabase::class.java,
                     "grocery_database"
                 ).allowMainThreadQueries()  // simple approach for now
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

@@ -7,6 +7,7 @@ class GroceryRepository(private val dao: GroceryDao) {
 
     // LiveData - UI observes this and auto-updates
     val allItems: LiveData<List<GroceryItem>> = dao.getAllItems()
+    val purchaseHistory: LiveData<List<PurchaseHistory>> = dao.getAllPurchaseHistory()
 
     fun getAllItemsSync(): List<GroceryItem> = dao.getAllItemsSync()
 
@@ -25,8 +26,18 @@ class GroceryRepository(private val dao: GroceryDao) {
 
     fun setPurchased(id: Int, purchased: Boolean) {
         val existing = dao.getItemById(id) ?: return
+        val wasPurchased = existing.purchased
         val updated = existing.copy(purchased = purchased)
         dao.update(updated)
+
+        if (!wasPurchased && purchased) {
+            dao.insertPurchaseHistory(
+                PurchaseHistory(
+                    itemName = existing.name,
+                    category = existing.category
+                )
+            )
+        }
     }
 
     fun deleteItem(id: Int) = dao.deleteById(id)

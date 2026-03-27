@@ -16,8 +16,14 @@ interface GroceryDao {
     @Query("SELECT * FROM grocery_items WHERE id = :id")
     fun getItemById(id: Int): GroceryItem?
 
+    @Query("SELECT * FROM purchase_history ORDER BY purchasedAt DESC")
+    fun getAllPurchaseHistory(): LiveData<List<PurchaseHistory>>
+
     @Insert
     fun insert(item: GroceryItem): Long
+
+    @Insert
+    fun insertPurchaseHistory(entry: PurchaseHistory)
 
     @Update
     fun update(item: GroceryItem)

@@ -1,13 +1,17 @@
 package com.example.smartgrocerylist.ui
 
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.smartgrocerylist.R
 
 class AddEditItemActivity : AppCompatActivity() {
@@ -24,6 +28,10 @@ class AddEditItemActivity : AppCompatActivity() {
     private lateinit var spCategory: Spinner
     private lateinit var btnCancel: Button
     private lateinit var btnSave: Button
+
+    private lateinit var tvAddSuggestionsTitle: TextView
+    private lateinit var rvAddSuggestions: RecyclerView
+    private lateinit var suggestionAdapter: SimpleStringAdapter
 
     private lateinit var viewModel: GroceryViewModel
 
@@ -42,6 +50,7 @@ class AddEditItemActivity : AppCompatActivity() {
 
         bindViews()
         setupCategorySpinner()
+        setupSuggestions()
         setupCancel()
         setupSave()
         initFromIntent()
@@ -57,6 +66,9 @@ class AddEditItemActivity : AppCompatActivity() {
         spCategory = findViewById(R.id.spCategory)
         btnCancel = findViewById(R.id.btnCancel)
         btnSave = findViewById(R.id.btnSave)
+
+        tvAddSuggestionsTitle = findViewById(R.id.tvAddSuggestionsTitle)
+        rvAddSuggestions = findViewById(R.id.rvAddSuggestions)
     }
 
     private fun setupCategorySpinner() {
@@ -65,6 +77,26 @@ class AddEditItemActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spCategory.adapter = adapter
         spCategory.setSelection(0)
+    }
+
+    private fun setupSuggestions() {
+        suggestionAdapter = SimpleStringAdapter(emptyList())
+        rvAddSuggestions.layoutManager = LinearLayoutManager(this)
+        rvAddSuggestions.adapter = suggestionAdapter
+        rvAddSuggestions.isNestedScrollingEnabled = false
+
+        viewModel.smartSuggestions.observe(this) { suggestions ->
+            val safeSuggestions = suggestions ?: emptyList()
+
+            if (safeSuggestions.isEmpty()) {
+                tvAddSuggestionsTitle.visibility = View.GONE
+                rvAddSuggestions.visibility = View.GONE
+            } else {
+                tvAddSuggestionsTitle.visibility = View.VISIBLE
+                rvAddSuggestions.visibility = View.VISIBLE
+                suggestionAdapter.update(safeSuggestions)
+            }
+        }
     }
 
     private fun setupCancel() {
